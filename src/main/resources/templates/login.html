@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>登錄</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: sans-serif; background: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .card { background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,.12); width: 360px; }
+        h2 { text-align: center; margin-bottom: 28px; color: #333; }
+        label { display: block; margin-bottom: 4px; color: #555; font-size: 14px; }
+        input[type=text], input[type=password] { width: 100%; padding: 10px 12px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 14px; margin-bottom: 16px; outline: none; }
+        input:focus { border-color: #1890ff; }
+        .remember-row { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; font-size: 14px; color: #555; }
+        .remember-row input[type=checkbox] { width: 15px; height: 15px; cursor: pointer; }
+        button { width: 100%; padding: 11px; background: #1890ff; color: #fff; border: none; border-radius: 4px; font-size: 15px; cursor: pointer; }
+        button:hover { background: #40a9ff; }
+        .msg-error { color: #f5222d; font-size: 13px; text-align: center; margin-bottom: 14px; }
+        .msg-logout { color: #52c41a; font-size: 13px; text-align: center; margin-bottom: 14px; }
+        .hint { margin-top: 16px; font-size: 12px; color: #999; text-align: center; line-height: 1.6; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>系統登錄</h2>
+
+    <p class="msg-error" th:if="${param.error}">帳號或密碼錯誤，請重試</p>
+    <p class="msg-logout" th:if="${param.logout}">已成功退出登錄</p>
+
+    <form th:action="@{/login}" method="post">
+        <label>帳號</label>
+        <input type="text" name="username" placeholder="請輸入帳號" autofocus/>
+
+        <label>密碼</label>
+        <input type="password" name="password" placeholder="請輸入密碼"/>
+
+        <!--
+            name="remember-me" 對應 SecurityConfig 中的 rememberMeParameter
+            勾選後 Spring Security 會生成一個有效期 7 天的持久化 Cookie
+            不勾選則只生成 Session Cookie（瀏覽器關閉即消失）
+        -->
+        <div class="remember-row">
+            <input type="checkbox" id="rememberMe" name="remember-me"/>
+            <label for="rememberMe" style="margin-bottom:0">記住我（7天內免登錄）</label>
+        </div>
+
+        <button type="submit">登錄</button>
+    </form>
+
+    <p class="hint">測試帳號：admin / 123456 &nbsp;|&nbsp; user1 / 123456 &nbsp;|&nbsp; user2 / 888888</p>
+</div>
+</body>
+</html>
