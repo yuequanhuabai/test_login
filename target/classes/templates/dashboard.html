@@ -26,6 +26,8 @@
         tr:last-child td { border-bottom: none; }
         tr:hover td { background: #fafafa; }
 
+        .nav-link { color: #fff; text-decoration: none; font-size: 14px; border: 1px solid rgba(255,255,255,.4); padding: 5px 14px; border-radius: 4px; margin-right: 10px; }
+        .nav-link:hover { background: rgba(255,255,255,.1); }
         .logout-btn { background: transparent; border: 1px solid rgba(255,255,255,.4); color: #fff; padding: 5px 14px; border-radius: 4px; cursor: pointer; font-size: 14px; }
         .logout-btn:hover { background: rgba(255,255,255,.1); }
         .refresh-tip { font-size: 12px; color: #999; margin-top: 8px; }
@@ -35,9 +37,12 @@
 
 <div class="header">
     <h1>Spring Security 認證演示</h1>
-    <form th:action="@{/logout}" method="post">
-        <button class="logout-btn" type="submit">退出登錄</button>
-    </form>
+    <div style="display:flex;align-items:center">
+        <a class="nav-link" href="/users">用戶列表</a>
+        <form th:action="@{/logout}" method="post">
+            <button class="logout-btn" type="submit">退出登錄</button>
+        </form>
+    </div>
 </div>
 
 <div class="main">
