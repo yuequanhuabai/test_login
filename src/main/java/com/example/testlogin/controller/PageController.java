@@ -67,4 +67,9 @@ public class PageController {
 
         return "dashboard";
     }
+
+    @GetMapping("/users")
+    public String usersPage() {
+        return "users";
+    }
 }

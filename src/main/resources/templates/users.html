@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>用戶列表</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: sans-serif; background: #f0f2f5; }
+        .header { background: #001529; color: #fff; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; }
+        .header h1 { font-size: 18px; }
+        .nav-link { color: #fff; text-decoration: none; font-size: 14px; border: 1px solid rgba(255,255,255,.4); padding: 5px 14px; border-radius: 4px; margin-right: 10px; }
+        .nav-link:hover { background: rgba(255,255,255,.1); }
+
+        .main { max-width: 860px; margin: 30px auto; display: flex; flex-direction: column; gap: 20px; }
+        .card { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.08); padding: 24px; }
+        .card h3 { font-size: 15px; color: #333; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th { background: #fafafa; color: #666; font-weight: 500; text-align: left; padding: 10px 14px; border-bottom: 1px solid #f0f0f0; }
+        td { padding: 10px 14px; border-bottom: 1px solid #f7f7f7; color: #333; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #fafafa; }
+
+        .tag-on  { display:inline-block; background:#f6ffed; border:1px solid #b7eb8f; color:#52c41a; padding:1px 8px; border-radius:3px; font-size:12px; }
+        .tag-off { display:inline-block; background:#fff1f0; border:1px solid #ffa39e; color:#f5222d; padding:1px 8px; border-radius:3px; font-size:12px; }
+
+        .tip { background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; padding: 14px 18px; font-size: 13px; color: #614700; line-height: 1.9; }
+        .tip code { background: #fff7d6; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+
+        pre { background: #1e1e1e; color: #d4d4d4; padding: 16px; border-radius: 6px; font-size: 13px; line-height: 1.7; overflow-x: auto; }
+        .kw { color: #569cd6; }
+        .str { color: #ce9178; }
+        .cm { color: #6a9955; }
+        #status { font-size: 13px; color: #999; margin-top: 8px; min-height: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>用戶列表</h1>
+    <a class="nav-link" href="/dashboard">返回首頁</a>
+</div>
+
+<div class="main">
+
+    <!-- 說明 -->
+    <div class="tip">
+        <strong>Cookie 認證說明：</strong><br>
+        下方的用戶數據通過 <code>fetch('/api/users')</code> 從後端接口加載。<br>
+        由於前端頁面和後端接口是<strong>同源</strong>的（同一個域名），瀏覽器會<strong>自動在請求頭中帶上 JSESSIONID Cookie</strong>，無需任何手動操作。<br>
+        後端 Spring Security 收到請求後，用 Cookie 裏的 Session ID 查找服務端 Session，識別用戶身份，然後放行接口。<br>
+        你可以打開瀏覽器開發者工具（F12）→ Network 面板，找到 <code>/api/users</code> 請求，在 Request Headers 裏看到 <code>Cookie: JSESSIONID=xxx</code>。
+    </div>
+
+    <!-- fetch 請求示意 -->
+    <div class="card">
+        <h3>前端代碼（本頁實際執行的邏輯）</h3>
+<pre><span class="cm">// 不需要設置任何 Authorization 頭</span>
+<span class="cm">// 瀏覽器同源請求會自動攜帶 Cookie（包括 JSESSIONID）</span>
+<span class="kw">fetch</span>(<span class="str">'/api/users'</span>)
+  .then(res => {
+    <span class="cm">// 如果未登錄，Spring Security 返回 302 跳轉，fetch 跟隨後得到登錄頁 HTML</span>
+    <span class="cm">// 這裏 res.ok 為 false，說明 Session 已失效</span>
+    <span class="kw">if</span> (!res.ok) window.location.href = <span class="str">'/login'</span>;
+    <span class="kw">return</span> res.json();
+  })
+  .then(data => renderTable(data));
+</pre>
+    </div>
+
+    <!-- 用戶列表 -->
+    <div class="card">
+        <h3>用戶列表（來自 /api/users 接口）</h3>
+        <table id="userTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>用戶名</th>
+                    <th>狀態</th>
+                </tr>
+            </thead>
+            <tbody id="userBody">
+                <tr><td colspan="3" style="text-align:center;color:#999">加載中...</td></tr>
+            </tbody>
+        </table>
+        <div id="status"></div>
+    </div>
+
+</div>
+
+<script>
+    fetch('/api/users')
+        .then(res => {
+            if (!res.ok) {
+                // Session 失效或未登錄，跳回登錄頁
+                window.location.href = '/login';
+                return;
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (!data) return;
+            const tbody = document.getElementById('userBody');
+            tbody.innerHTML = data.map(u => `
+                <tr>
+                    <td>${u.id}</td>
+                    <td>${u.username}</td>
+                    <td><span class="${u.enabled ? 'tag-on' : 'tag-off'}">${u.enabled ? '啟用' : '禁用'}</span></td>
+                </tr>
+            `).join('');
+            document.getElementById('status').textContent =
+                `共 ${data.length} 條記錄，數據通過 fetch('/api/users') 加載，Cookie 由瀏覽器自動攜帶`;
+        })
+        .catch(() => {
+            document.getElementById('userBody').innerHTML =
+                '<tr><td colspan="3" style="text-align:center;color:#f5222d">請求失敗，請檢查網絡或重新登錄</td></tr>';
+        });
+</script>
+
+</body>
+</html>
