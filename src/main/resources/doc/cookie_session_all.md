@@ -598,7 +598,7 @@ DEBUG TokenBasedRememberMeServices : Adding remember-me cookie
 入口（Spring Security 6.x）
 └── DefaultSecurityFilterChain                  Filter 鏈本體
     ├── SecurityContextHolderFilter             SecurityContext 讀取
-    │   └── HttpSessionSecurityContextRepository  ★ Session 讀寫核心
+    │   └──    ★ Session 讀寫核心
     │
     ├── CsrfFilter                              CSRF（也是 Session 創建源頭）
     │   └── HttpSessionCsrfTokenRepository

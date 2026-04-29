@@ -29,6 +29,8 @@ public class PageController {
                             HttpServletRequest request,
                             Model model) {
 
+        System.out.println(session.getAttribute("SPRING_SECURITY_CONTEXT"));
+
         // 首次進入時記錄登錄時間
         if (session.getAttribute("loginTime") == null) {
             session.setAttribute("loginTime",
